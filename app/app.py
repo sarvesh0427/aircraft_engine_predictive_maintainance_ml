@@ -26,10 +26,8 @@ def load_artifacts():
 
 
 model, FEATURE_COLUMNS = load_artifacts()
-# -------------------------------
-# UI
-# -------------------------------
 
+# UI
 # Tabs
 tab1, tab2 = st.tabs(["RUL Predictor", "About"])
 
@@ -51,9 +49,7 @@ with tab1:
                 format="%.4f"
             )
 
-    # -------------------------------
-    # Build full feature row
-    # -------------------------------
+    #  build features row
     input_df = pd.DataFrame([input_data])
 
     # Recreate rolling features (deployment approximation)
@@ -64,9 +60,7 @@ with tab1:
     # VERY IMPORTANT: align column order
     input_df = input_df.reindex(columns=FEATURE_COLUMNS)
 
-    # -------------------------------
-    # Predict
-    # -------------------------------
+    # predict
     if st.button("Predict RUL"):
         prediction = model.predict(input_df)[0]
 
@@ -109,6 +103,7 @@ with tab2:
         - Pandas, NumPy
         - Scikit-learn
         - Streamlit
+        - FastAPI
 
         ### Use Case
         This system can assist aviation engineers and maintenance teams
@@ -116,9 +111,7 @@ with tab2:
         """
     )
 
-# -------------------------------
 # Footer
-# -------------------------------
 st.markdown("---")
 st.markdown(
     "<p style='text-align:center; font-size:0.85em; color:gray;'>"
