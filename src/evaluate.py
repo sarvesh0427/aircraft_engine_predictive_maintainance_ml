@@ -53,8 +53,6 @@ df = create_rul_target(df)
 
 df = drop_non_informative_columns(df)
 
-df = create_rolling_features(df)
-
 # train test split
 engine_ids = df["engine_id"].unique()
 
