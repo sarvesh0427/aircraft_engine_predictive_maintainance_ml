@@ -1,121 +1,106 @@
 import streamlit as st
 import pandas as pd
-import joblib
-import numpy as np
+import sys
+from pathlib import Path
 
-# Page Config
+# =========================
+# ADD SRC TO PATH
+# =========================
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SRC_DIR = BASE_DIR / "src"
+
+sys.path.append(str(SRC_DIR))
+
+# =========================
+# IMPORT PREDICTION FUNCTION
+# =========================
+from predict import predict_rul
+
+# =========================
+# PAGE CONFIG
+# =========================
 st.set_page_config(
-    page_title="Aircraft Engine RUL Predictor",
-    layout="wide"
+    page_title="Aircraft Engine RUL Prediction",
+    page_icon="✈️",
+    layout="centered"
 )
 
-st.title("Aircraft Engine RUL Prediction")
+# =========================
+# TITLE
+# =========================
+st.title("✈️ Aircraft Engine Predictive Maintenance")
+
 st.markdown(
-    "Predict **Remaining Useful Life (RUL)** using sensor data "
-    "from turbofan aircraft engines."
+    """
+Predict the **Remaining Useful Life (RUL)** of an aircraft engine
+using sensor and operational data.
+"""
 )
 
+# =========================
+# USER INPUTS
+# =========================
+st.subheader("Enter Engine Sensor Values")
 
-# model = joblib.load("models/random_forest_rul.pkl")
-# feature_cols = joblib.load("models/feature_columns.pkl")
-@st.cache_resource
-def load_artifacts():
-    model = joblib.load("models/random_forest_rul.pkl")
-    feature_cols = joblib.load("models/feature_columns.pkl")
-    return model, feature_cols
+op_setting_1 = st.number_input("Operational Setting 1", value=0.0)
+op_setting_2 = st.number_input("Operational Setting 2", value=0.0)
+op_setting_3 = st.number_input("Operational Setting 3", value=100.0)
 
+sensor_2 = st.number_input("Sensor 2", value=641.82)
+sensor_3 = st.number_input("Sensor 3", value=1589.70)
+sensor_4 = st.number_input("Sensor 4", value=1400.60)
+sensor_7 = st.number_input("Sensor 7", value=554.36)
+sensor_8 = st.number_input("Sensor 8", value=2388.06)
+sensor_9 = st.number_input("Sensor 9", value=9046.19)
+sensor_11 = st.number_input("Sensor 11", value=47.47)
+sensor_12 = st.number_input("Sensor 12", value=521.66)
+sensor_13 = st.number_input("Sensor 13", value=2388.02)
+sensor_14 = st.number_input("Sensor 14", value=8138.62)
+sensor_15 = st.number_input("Sensor 15", value=8.4195)
+sensor_17 = st.number_input("Sensor 17", value=392.0)
+sensor_20 = st.number_input("Sensor 20", value=39.06)
+sensor_21 = st.number_input("Sensor 21", value=23.4190)
 
-model, FEATURE_COLUMNS = load_artifacts()
+# =========================
+# PREDICT BUTTON
+# =========================
+if st.button("Predict RUL"):
 
-# UI
-# Tabs
-tab1, tab2 = st.tabs(["RUL Predictor", "About"])
+    input_data = pd.DataFrame([{
+        "op_setting_1": op_setting_1,
+        "op_setting_2": op_setting_2,
+        "op_setting_3": op_setting_3,
+        "sensor_2": sensor_2,
+        "sensor_3": sensor_3,
+        "sensor_4": sensor_4,
+        "sensor_7": sensor_7,
+        "sensor_8": sensor_8,
+        "sensor_9": sensor_9,
+        "sensor_11": sensor_11,
+        "sensor_12": sensor_12,
+        "sensor_13": sensor_13,
+        "sensor_14": sensor_14,
+        "sensor_15": sensor_15,
+        "sensor_17": sensor_17,
+        "sensor_20": sensor_20,
+        "sensor_21": sensor_21
+    }])
 
-with tab1:
-    # Sensor Inputs (Side by Side)
-    st.subheader("Engine Sensor Inputs")
+    prediction = predict_rul(input_data)
 
-    sensor_cols = [f"sensor_{i}" for i in range(1, 21)]
-    input_data = {}
+    rul = prediction[0]
 
-    # Create columns: 4 sensors per row (adjust as needed)
-    cols_per_row = 4
-    for i in range(0, len(sensor_cols), cols_per_row):
-        cols = st.columns(cols_per_row)
-        for j, sensor in enumerate(sensor_cols[i:i+cols_per_row]):
-            input_data[sensor] = cols[j].number_input(
-                sensor,
-                value=0.0,
-                format="%.4f"
-            )
+    st.success(f"Predicted Remaining Useful Life: {rul:.2f} cycles")
 
-    #  build features row
-    input_df = pd.DataFrame([input_data])
+    # =========================
+    # HEALTH STATUS
+    # =========================
+    if rul > 120:
+        st.info("✅ Engine Health: GOOD")
 
-    # Recreate rolling features (deployment approximation)
-    for s in sensor_cols:
-        input_df[f"{s}_roll_mean"] = input_df[s]
-        input_df[f"{s}_roll_std"] = 0.0
+    elif rul > 60:
+        st.warning("⚠️ Engine Health: MODERATE")
 
-    # VERY IMPORTANT: align column order
-    input_df = input_df.reindex(columns=FEATURE_COLUMNS)
-
-    # predict
-    if st.button("Predict RUL"):
-        prediction = model.predict(input_df)[0]
-
-        st.success(f"Predicted Remaining Useful Life: **{prediction:.2f} cycles**")
-
-        if prediction < 30:
-            st.warning("Maintenance recommended")
-        else:
-            st.info("Engine operating normally")
-
-with tab2:
-    st.subheader("About the Project")
-
-    st.markdown(
-        """
-        ### Aircraft Engine Predictive Maintenance System
-
-        This project focuses on **predicting the Remaining Useful Life (RUL)**
-        of turbofan aircraft engines using sensor data collected during engine operation.
-
-        ### Objective
-        - Predict how many operational cycles remain before engine failure  
-        - Enable **predictive maintenance** instead of reactive maintenance  
-        - Reduce unexpected failures and maintenance costs  
-
-        ### Dataset
-        - Based on the **NASA C-MAPSS dataset**
-        - Includes:
-          - Engine operational settings
-          - Multiple sensor measurements
-          - Engine lifecycle data
-
-        ### Machine Learning Model
-        - **Random Forest Regressor**
-        - Trained on engineered sensor features
-        - Outputs predicted Remaining Useful Life in cycles
-
-        ### Technologies Used
-        - Python
-        - Pandas, NumPy
-        - Scikit-learn
-        - Streamlit
-        - FastAPI
-
-        ### Use Case
-        This system can assist aviation engineers and maintenance teams
-        in making data-driven decisions for engine servicing and replacement.
-        """
-    )
-
-# Footer
-st.markdown("---")
-st.markdown(
-    "<p style='text-align:center; font-size:0.85em; color:gray;'>"
-    "Built with Streamlit | Aircraft Engine Predictive Maintenance"
-    "</p>",
-    unsafe_allow_html=True
-)
+    else:
+        st.error("🚨 Engine Health: CRITICAL — Maintenance Required")
