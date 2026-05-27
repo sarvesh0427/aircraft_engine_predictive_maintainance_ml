@@ -35,7 +35,7 @@ df = df.sort_values(["engine_id", "cycle"]).reset_index(drop=True)
 # feature engineering
 df = create_rul_target(df)
 df = drop_non_informative_columns(df)
-df = create_rolling_features(df)
+
 
 # train test split
 engine_ids = df["engine_id"].unique()
@@ -58,16 +58,19 @@ y_test = test_df["RUL"]
 
 # model
 model = CatBoostRegressor(
-    iterations=2000,
-    learning_rate=0.03,
-    depth=8,
+    iterations=500,
+    learning_rate=0.05,
+    depth=6,
     loss_function="RMSE",
     verbose=100,
     random_seed=42
 )
 
-# rain
-model.fit(X_train, y_train)
+model.fit(
+    X_train,
+    y_train,
+    eval_set=(X_test, y_test)
+)
 
 # save model and features
 joblib.dump(model, MODEL_DIR / "catboost_rul.pkl")
