@@ -61,6 +61,13 @@ sensor_15 = st.number_input("Sensor 15", value=8.4195)
 sensor_17 = st.number_input("Sensor 17", value=392.0)
 sensor_20 = st.number_input("Sensor 20", value=39.06)
 sensor_21 = st.number_input("Sensor 21", value=23.4190)
+sensor_1 = st.number_input("Sensor 1", value=518.67)
+sensor_5 = st.number_input("Sensor 5", value=14.62)
+sensor_6 = st.number_input("Sensor 6", value=21.61)
+sensor_10 = st.number_input("Sensor 10", value=1.30)
+sensor_16 = st.number_input("Sensor 16", value=0.03)
+sensor_18 = st.number_input("Sensor 18", value=2388.00)
+sensor_19 = st.number_input("Sensor 19", value=100.00)
 
 # =========================
 # PREDICT BUTTON
@@ -68,24 +75,32 @@ sensor_21 = st.number_input("Sensor 21", value=23.4190)
 if st.button("Predict RUL"):
 
     input_data = pd.DataFrame([{
-        "op_setting_1": op_setting_1,
-        "op_setting_2": op_setting_2,
-        "op_setting_3": op_setting_3,
-        "sensor_2": sensor_2,
-        "sensor_3": sensor_3,
-        "sensor_4": sensor_4,
-        "sensor_7": sensor_7,
-        "sensor_8": sensor_8,
-        "sensor_9": sensor_9,
-        "sensor_11": sensor_11,
-        "sensor_12": sensor_12,
-        "sensor_13": sensor_13,
-        "sensor_14": sensor_14,
-        "sensor_15": sensor_15,
-        "sensor_17": sensor_17,
-        "sensor_20": sensor_20,
-        "sensor_21": sensor_21
-    }])
+
+    "op_setting_1": op_setting_1,
+    "op_setting_2": op_setting_2,
+    "op_setting_3": op_setting_3,
+
+    "sensor_1": sensor_1,
+    "sensor_2": sensor_2,
+    "sensor_3": sensor_3,
+    "sensor_4": sensor_4,
+    "sensor_5": sensor_5,
+    "sensor_6": sensor_6,
+    "sensor_7": sensor_7,
+    "sensor_8": sensor_8,
+    "sensor_9": sensor_9,
+    "sensor_10": sensor_10,
+    "sensor_11": sensor_11,
+    "sensor_12": sensor_12,
+    "sensor_13": sensor_13,
+    "sensor_14": sensor_14,
+    "sensor_15": sensor_15,
+    "sensor_16": sensor_16,
+    "sensor_17": sensor_17,
+    "sensor_18": sensor_18,
+    "sensor_19": sensor_19,
+    "sensor_20": sensor_20,
+    "sensor_21": sensor_21}])
 
     prediction = predict_rul(input_data)
 
